@@ -12,7 +12,7 @@
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
-                    <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Home</a></li>
+                    <li class="breadcrumb-item"><a href="{{ route('user.dashboard') }}">Home</a></li>
                     <li class="breadcrumb-item active">Tambah Produk</li>
                 </ol>
             </div>
@@ -34,7 +34,7 @@
                             <strong>Form Produk</strong>
                         </div>
 
-                        <form action="{{ route('products.store') }}" method="POST">
+                        <form action="{{ route('user.products.store') }}" method="POST">
                             @csrf
 
                             <div class="card-body">
@@ -81,7 +81,7 @@
 
                             {{-- FOOTER --}}
                             <div class="card-footer d-flex justify-content-start">
-                                <a href="{{ route('products.index') }}" class="btn btn-secondary mr-2">
+                                <a href="{{ route('user.products.index') }}" class="btn btn-secondary mr-2">
                                     <i class="fas fa-arrow-left"></i> Kembali
                                 </a>
 

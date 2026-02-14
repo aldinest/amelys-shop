@@ -12,7 +12,7 @@
 <section class="content">
 <div class="container-fluid">
 
-<form action="{{ route('orders.update',$order->order_number) }}" method="POST">
+<form action="{{ route('user.orders.update',$order->order_number) }}" method="POST">
 @csrf
 @method('PUT')
 
@@ -172,7 +172,7 @@ Rp {{ number_format($netTotal,0,',','.') }}
 <div class="card-footer">
     <div class="d-flex gap-2">
 
-        <a href="{{ route('orders.index') }}"
+        <a href="{{ route('user.orders.index') }}"
            class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>

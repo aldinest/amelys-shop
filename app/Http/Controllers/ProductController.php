@@ -21,13 +21,13 @@ class ProductController extends Controller
                         ->paginate(10)
                         ->withQueryString();
 
-        return view('products.index', compact('products'));
+        return view('user.products.index', compact('products'));
     }
 
 
     public function create()
     {
-        return view('products.create');
+        return view('user.products.create');
     }
 
     public function store(Request $request)
@@ -40,13 +40,13 @@ class ProductController extends Controller
         Product::create($request->only('name', 'type'));
 
         return redirect()
-            ->route('products.index')
+            ->route('user.products.index')
             ->with('success', 'Product created');
     }
 
     public function edit(Product $product)
     {
-        return view('products.edit', compact('product'));
+        return view('user.products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
@@ -59,7 +59,7 @@ class ProductController extends Controller
         $product->update($request->only('name', 'type'));
 
         return redirect()
-            ->route('products.index')
+            ->route('user.products.index')
             ->with('success', 'Product updated');
     }
 
@@ -68,7 +68,7 @@ class ProductController extends Controller
         $product->delete();
 
         return redirect()
-            ->route('products.index')
+            ->route('user.products.index')
             ->with('success', 'Product deleted');
     }
 }

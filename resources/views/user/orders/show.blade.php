@@ -130,11 +130,11 @@ Rp {{ number_format($netTotal,0,',','.') }}
 </div>
 
 <div class="card-footer d-flex gap-2">
-    <a href="{{ route('orders.index') }}" class="btn btn-secondary">
+    <a href="{{ route('user.orders.index') }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Kembali
     </a>
 
-    <a href="{{ route('orders.edit', $order->order_number) }}"
+    <a href="{{ route('user.orders.edit', $order->order_number) }}"
        class="btn btn-warning">
         <i class="fas fa-edit"></i> Edit
     </a>

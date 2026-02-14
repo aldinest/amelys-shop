@@ -20,7 +20,7 @@
         <div class="container-fluid d-flex justify-content-between">
             <h1>Products</h1>
 
-            <a href="{{ route('products.create') }}" class="btn btn-primary">
+            <a href="{{ route('user.products.create') }}" class="btn btn-primary">
                 <i class="fas fa-plus"></i> Add Product
             </a>
         </div>
@@ -37,7 +37,7 @@
         <strong>Product List</strong>
 
         <form method="GET"
-              action="{{ route('products.index') }}"
+              action="{{ route('user.products.index') }}"
               class="ml-auto d-flex">
 
             <input type="text"
@@ -51,7 +51,7 @@
             </button>
 
             @if(request('search'))
-                <a href="{{ route('products.index') }}"
+                <a href="{{ route('user.products.index') }}"
                    class="btn btn-sm btn-secondary">
                     Reset
                 </a>
@@ -85,12 +85,12 @@
                                         </span>
                                     </td>
                                     <td class="text-center">
-                                        <a href="{{ route('products.edit', $product->id) }}"
+                                        <a href="{{ route('user.products.edit', $product->id) }}"
                                            class="btn btn-sm btn-warning">
                                             <i class="fas fa-edit"></i>
                                         </a>
 
-                                        <form action="{{ route('products.destroy', $product->id) }}"
+                                        <form action="{{ route('user.products.destroy', $product->id) }}"
                                               method="POST"
                                               class="d-inline"
                                               onsubmit="return confirm('Delete this product?')">

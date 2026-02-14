@@ -14,6 +14,11 @@ class Product extends Model
         'type',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // One product can be in many order items
     public function orderItems()
     {

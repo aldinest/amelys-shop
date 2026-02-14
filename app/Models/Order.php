@@ -24,6 +24,11 @@ class Order extends Model
         'net_total',
     ];
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
     // One order has many items
     public function items()
     {

@@ -5,7 +5,7 @@
 <section class="content pt-4 pb-5">
 <div class="container-fluid">
 
-<form method="POST" action="{{ route('orders.store') }}">
+<form method="POST" action="{{ route('user.orders.store') }}">
 @csrf
 
 {{-- HEADER --}}
@@ -159,7 +159,7 @@
                     Simpan Pesanan
                 </button>
 
-                <a href="{{ route('orders.index') }}"
+                <a href="{{ route('user.orders.index') }}"
                    class="btn btn-light btn-block mt-2">
                     Kembali
                 </a>

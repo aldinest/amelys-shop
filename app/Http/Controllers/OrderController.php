@@ -45,7 +45,7 @@ class OrderController extends Controller
 
         $orders = $query->latest()->paginate(10)->withQueryString();
 
-        return view('orders.index', compact('orders'));
+        return view('user.orders.index', compact('orders'));
     }
 
 
@@ -54,7 +54,7 @@ class OrderController extends Controller
     {
         $products = Product::orderBy('name')->get();
 
-        return view('orders.create', compact('products'));
+        return view('user.orders.create', compact('products'));
     }
 
     // Store order + items
@@ -95,7 +95,7 @@ class OrderController extends Controller
             }
         });
 
-        return redirect()->route('orders.index')
+        return redirect()->route('user.orders.index')
             ->with('success', 'Order berhasil disimpan');
     }
 
@@ -105,7 +105,7 @@ class OrderController extends Controller
 
         $order->load('items.product');
 
-        return view('orders.edit', compact('order','products'));
+        return view('user.orders.edit', compact('order','products'));
     }
 
     public function update(Request $request, Order $order)
@@ -132,7 +132,7 @@ class OrderController extends Controller
     ]);
 
     return redirect()
-        ->route('orders.show',$order->order_number)
+        ->route('user.orders.show',$order->order_number)
         ->with('success','Order berhasil diupdate');
 }
 
@@ -142,7 +142,7 @@ class OrderController extends Controller
             ->where('order_number', $order_number)
             ->firstOrFail();
 
-        return view('orders.show', compact('order'));
+        return view('user.orders.show', compact('order'));
     }
 
     public function destroy(Order $order)
@@ -150,7 +150,7 @@ class OrderController extends Controller
         $order->delete();
 
         return redirect()
-            ->route('orders.index')
+            ->route('user.orders.index')
             ->with('success', 'Pesanan berhasil dihapus');
     }
 

@@ -125,7 +125,7 @@
                                 </div>
 
                                 <div class="card-footer text-right">
-                                    <a href="{{ route('orders.index') }}" class="btn btn-sm btn-primary">
+                                    <a href="{{ route('user.orders.index') }}" class="btn btn-sm btn-primary">
                                         Lihat Semua Pesanan
                                     </a>
                                 </div>

@@ -29,17 +29,17 @@
                     {{-- ACTION BUTTON --}}
                     <div class="col-md-6 col-12 d-flex justify-content-md-end gap-2 mt-2 mt-md-0 flex-wrap">
 
-                        <a href="{{ route('orders.export.excel', request()->query()) }}"
+                        <a href="{{ route('user.orders.export.excel', request()->query()) }}"
                         class="btn btn-success btn-sm">
                             Excel
                         </a>
 
-                        <a href="{{ route('orders.export.pdf', request()->query()) }}"
+                        <a href="{{ route('user.orders.export.pdf', request()->query()) }}"
                         class="btn btn-danger btn-sm">
                             PDF
                         </a>
 
-                        <a href="{{ route('orders.create') }}"
+                        <a href="{{ route('user.orders.create') }}"
                         class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Tambah Order
                         </a>
@@ -68,7 +68,7 @@
                             {{-- FILTER --}}
                             <div class="col-md-9 col-12 mb-2 mb-md-0">
                                 <form method="GET"
-                                    action="{{ route('orders.index') }}"
+                                    action="{{ route('user.orders.index') }}"
                                     class="row g-2 g-md-1">
 
                                     <div class="col-md-3 col-12 mb-2 mb-md-0">
@@ -84,8 +84,8 @@
                                                 class="form-control form-control-sm">
                                             <option value="">Semua Status</option>
                                             <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
-                                            <option value="proses" {{ request('status') == 'proses' ? 'selected' : '' }}>Proses</option>
-                                            <option value="selesai" {{ request('status') == 'selesai' ? 'selected' : '' }}>Selesai</option>
+                                            <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Proses</option>
+                                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
                                             <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option>
                                         </select>
                                     </div>
@@ -109,7 +109,7 @@
                                             Filter
                                         </button>
 
-                                        <a href="{{ route('orders.index') }}"
+                                        <a href="{{ route('user.orders.index') }}"
                                         class="btn btn-light btn-sm w-100">
                                             Reset
                                         </a>
@@ -174,17 +174,17 @@
 
                                         <td class="text-center">
 
-                                            <a href="{{ route('orders.show', $order) }}"
+                                            <a href="{{ route('user.orders.show', $order) }}"
                                                class="btn btn-xs btn-info">
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
-                                            <a href="{{ route('orders.edit', $order) }}"
+                                            <a href="{{ route('user.orders.edit', $order) }}"
                                                class="btn btn-xs btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
 
-                                            <form action="{{ route('orders.destroy', $order) }}"
+                                            <form action="{{ route('user.orders.destroy', $order) }}"
                                                   method="POST"
                                                   class="d-inline"
                                                   onsubmit="return confirm('Hapus order ini?')">

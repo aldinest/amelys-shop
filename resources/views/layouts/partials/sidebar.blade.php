@@ -64,7 +64,7 @@
 
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('products.index') }}"
+                            <a href="{{ route('user.products.index') }}"
                                class="nav-link {{ request()->is('products*') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Products</p>
@@ -86,16 +86,16 @@
 
                     <ul class="nav nav-treeview">
                         <li class="nav-item">
-                            <a href="{{ route('orders.index') }}"
-                               class="nav-link {{ request()->routeIs('orders.index') ? 'active' : '' }}">
+                            <a href="{{ route('user.orders.index') }}"
+                               class="nav-link {{ request()->routeIs('user.orders.index') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Order List</p>
                             </a>
                         </li>
 
                         <li class="nav-item">
-                            <a href="{{ route('orders.create') }}"
-                               class="nav-link {{ request()->routeIs('orders.create') ? 'active' : '' }}">
+                            <a href="{{ route('user.orders.create') }}"
+                               class="nav-link {{ request()->routeIs('user.orders.create') ? 'active' : '' }}">
                                 <i class="far fa-circle nav-icon"></i>
                                 <p>Create Order</p>
                             </a>
