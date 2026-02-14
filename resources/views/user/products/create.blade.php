@@ -63,11 +63,15 @@
                                             class="form-control @error('type') is-invalid @enderror"
                                             required>
                                         <option value="">-- Pilih Jenis --</option>
-                                        <option value="botol" {{ old('type') == 'botol' ? 'selected' : '' }}>Botol</option>
-                                        <option value="box" {{ old('type') == 'box' ? 'selected' : '' }}>Box</option>
                                         <option value="strip" {{ old('type') == 'strip' ? 'selected' : '' }}>Strip</option>
-                                        <option value="tablet" {{ old('type') == 'tablet' ? 'selected' : '' }}>Tablet</option>
+                                        <option value="fls" {{ old('type') == 'fls' ? 'selected' : '' }}>Fls</option>
                                         <option value="pcs" {{ old('type') == 'pcs' ? 'selected' : '' }}>Pcs</option>
+                                        <option value="box" {{ old('type') == 'box' ? 'selected' : '' }}>Box</option>
+                                        <option value="botol" {{ old('type') == 'botol' ? 'selected' : '' }}>Botol</option>
+                                        <option value="tube" {{ old('type') == 'tube' ? 'selected' : '' }}>Tube</option>
+                                        <option value="pack" {{ old('type') == 'pac' ? 'selected' : '' }}>Pack</option>
+                                        <option value="sch" {{ old('type') == 'sch' ? 'selected' : '' }}>Sch</option>
+                                        <option value="amp" {{ old('type') == 'amp' ? 'selected' : '' }}>Amp</option>
                                     </select>
 
                                     @error('type')
