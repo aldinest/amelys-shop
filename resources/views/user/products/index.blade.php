@@ -1,6 +1,20 @@
 @extends('layouts.main')
 
+@section('title', 'Amelys Shop')
+
 @section('content')
+<style>
+.pagination-wrapper {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+.pagination {
+    margin-bottom: 0;
+    flex-wrap: nowrap;
+}
+</style>
+
 <div class="content-wrapper">
 
     {{-- ALERT --}}
@@ -113,13 +127,17 @@
                     </table>
                 </div>
 
-                <div class="card-footer d-flex justify-content-between">
+                <div class="card-footer d-flex align-items-center">
+
                     <small class="text-muted">
                         Showing {{ $products->firstItem() }} - {{ $products->lastItem() }}
                         of {{ $products->total() }}
                     </small>
 
-                    {{ $products->links() }}
+                    <div class="ml-auto">
+                        {{ $products->links() }}
+                    </div>
+
                 </div>
 
             </div>

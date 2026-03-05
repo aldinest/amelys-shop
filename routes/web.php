@@ -38,13 +38,18 @@ use Illuminate\Support\Facades\Route;
         Route::get('/dashboard', [DashboardController::class, 'index'])
             ->name('dashboard');
 
+        Route::get('orders/print', [OrderController::class, 'print'])
+        ->name('orders.print');
+        Route::get('/orders/export/pdf', [OrderController::class, 'exportPdf'])
+        ->name('orders.export.pdf');
+                Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])
+        ->name('orders.export.excel');
+
         //Route Pesanan
         Route::resource('orders', OrderController::class);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
-        Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])
-        ->name('orders.export.excel');
-        Route::get('/orders/export/pdf', [OrderController::class, 'exportPdf'])
-        ->name('orders.export.pdf');
+
+
 
         //Route Produk
         Route::resource('products', ProductController::class)

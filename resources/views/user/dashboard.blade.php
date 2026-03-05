@@ -46,7 +46,7 @@
                         <div class="col-lg-3 col-6">
                             <div class="small-box bg-warning">
                                 <div class="inner">
-                                    <h3>{{ $statusCount['pending'] }}</h3>
+                                    <h3>{{ $statusCount['processing'] }}</h3>
                                     <p>Pesanan Diproses</p>
                                 </div>
                                 <div class="icon">

@@ -1,6 +1,57 @@
 @extends('layouts.main')
 
 @section('content')
+
+<style>
+/* KUNCI TINGGI & STYLE FIELD */
+.item-row input,
+.item-row select,
+.select2-container .select2-selection--single {
+    height: 40px !important;
+}
+
+.select2-container--bootstrap4 .select2-selection--single {
+    display: flex;
+    align-items: center;
+}
+
+/* DESKTOP OPTIMIZATION */
+@media (min-width: 768px) {
+    .item-row small, .item-row br {
+        display: none !important;
+    }
+    .item-no, .subtotal-container {
+        line-height: 40px;
+    }
+}
+
+/* MOBILE OPTIMIZATION */
+@media (max-width: 767px) {
+    .item-row {
+        background: #fdfdfd;
+        border: 1px solid #eee;
+        border-radius: 8px;
+        padding: 15px !important;
+        margin-bottom: 15px !important;
+    }
+    .product-col {
+        margin-bottom: 15px;
+    }
+    .item-no {
+        background: #6c757d;
+        color: white;
+        border-radius: 50%;
+        width: 25px;
+        height: 25px;
+        line-height: 25px;
+        margin-bottom: 10px;
+    }
+}
+
+.item-row { transition: all 0.2s; }
+.item-row:hover { background: #f8f9fa; }
+</style>
+
 <div class="content-wrapper">
 <section class="content pt-4 pb-5">
 <div class="container-fluid">
@@ -24,116 +75,124 @@
             <div class="card-body">
                 <h5 class="font-weight-bold mb-3">Informasi Pesanan</h5>
 
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label class="small font-weight-bold text-muted">Tanggal Pesanan</label>
-                        <input type="date" name="order_date"
-                               class="form-control"
-                               value="{{ date('Y-m-d') }}">
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="small font-weight-bold text-muted">Nomor Pesanan</label>
-                        <input type="text" name="order_number"
-                               class="form-control">
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="small font-weight-bold text-muted">E-Commerce</label>
-                        <select name="e_commerce" class="form-control">
-                            <option value="Shopee">Shopee</option>
-                            <option value="Tokopedia">Tokopedia</option>
-                            <option value="TikTok Shop">TikTok Shop</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mb-3">
-                        <label class="small font-weight-bold text-muted">Status</label>
-                        <select name="status" class="form-control">
-                            <option value="processing">Diproses</option>
-                            <option value="completed">Selesai</option>
-                        </select>
-                    </div>
-
-                    <div class="col-12">
-                        <label class="small font-weight-bold text-muted">Nama Customer</label>
-                        <input type="text" name="customer_name"
-                               class="form-control">
-                    </div>
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="small font-weight-bold text-muted">Tanggal Pesanan</label>
+                    <input type="date" name="order_date" class="form-control" value="{{ date('Y-m-d') }}">
                 </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="small font-weight-bold text-muted">E-Commerce</label>
+                    <select name="e_commerce" id="eCommerceSelect" class="form-control">
+                        <option value="Shopee">Shopee</option>
+                        <option value="WhatsApp">WhatsApp</option>
+                        <option value="Tokopedia">Tokopedia</option>
+                        <option value="TikTok Shop">TikTok Shop</option>
+                    </select>
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="small font-weight-bold text-muted">Nomor Pesanan</label>
+                    <input type="text" name="order_number" id="orderNumberInput" 
+                        class="form-control @error('order_number') is-invalid @enderror" 
+                        value="{{ old('order_number') }}"
+                        placeholder="Masukkan nomor pesanan">
+                    
+                    @error('order_number')
+                        <div class="invalid-feedback">
+                            Nomor pesanan ini sudah terdaftar, silakan gunakan nomor lain.
+                        </div>
+                    @enderror
+                </div>
+
+                <div class="col-md-6 mb-3">
+                    <label class="small font-weight-bold text-muted">Status</label>
+                    <select name="status" class="form-control">
+                        <option value="processing">Diproses</option>
+                        <option value="completed">Selesai</option>
+                    </select>
+                </div>
+
+                <div class="col-12 mb-3">
+                    <label class="small font-weight-bold text-muted">Nama Customer</label>
+                    <input type="text" name="customer_name" class="form-control">
+                </div>
+            </div>
+
             </div>
         </div>
 
-        {{-- ITEM PESANAN --}}
-        <div class="card shadow-sm border-0">
-            <div class="card-body">
+    {{-- ITEM PESANAN --}}
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
 
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <h5 class="font-weight-bold mb-0">Item Pesanan</h5>
-                    <button type="button"
-                            id="addRow"
-                            class="btn btn-primary btn-sm px-3">
-                        + Tambah Produk
-                    </button>
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 class="font-weight-bold mb-0">Item Pesanan</h5>
+                <button type="button" id="addRow" class="btn btn-primary btn-sm px-3">
+                    + Tambah Produk
+                </button>
+            </div>
+
+            {{-- HEADER --}}
+            <div class="row text-muted small font-weight-bold border-bottom pb-2 mb-3 d-none d-md-flex">
+                <div class="col-md-1 text-center">No</div>
+                <div class="col-md-4">Produk</div>
+                <div class="col-md-2 text-center">Harga</div>
+                <div class="col-md-2 text-center">Qty</div>
+                <div class="col-md-2 text-right">Subtotal</div>
+                <div class="col-md-1 text-center">Aksi</div>
+            </div>
+
+            {{-- BODY --}}
+            <div id="itemsBody">
+
+            <div class="row align-items-center mb-3 border-bottom pb-3 item-row">
+                {{-- NO --}}
+                <div class="col-12 col-md-1 text-md-center font-weight-bold mb-2 mb-md-0">
+                    <div class="item-no mx-auto mx-md-0">1</div>
                 </div>
 
-                {{-- HEADER --}}
-                <div class="row text-muted small font-weight-bold border-bottom pb-2 mb-3">
-                    <div class="col-md-5">Produk</div>
-                    <div class="col-md-2 text-center">Harga</div>
-                    <div class="col-md-2 text-center">Qty</div>
-                    <div class="col-md-2 text-right">Subtotal</div>
-                    <div class="col-md-1 text-center"></div>
+                {{-- PRODUK --}}
+                <div class="col-12 col-md-4 mb-3 mb-md-0 product-col">
+                    <label class="small font-weight-bold d-md-none text-muted">Produk</label>
+                    <select name="items[0][product_id]" class="form-control product-select">
+                        <option value="">Pilih produk</option>
+                        @foreach ($products as $product)
+                            <option value="{{ $product->id }}" data-price="{{ $product->price }}">
+                                {{ $product->name }}
+                            </option>
+                        @endforeach
+                    </select>
                 </div>
 
-                {{-- BODY --}}
-                <div id="itemsBody">
-
-                    <div class="row align-items-center mb-3 border-bottom pb-3 item-row">
-
-<div class="col-md-5">
-    <select name="items[0][product_id]"
-            class="form-control product-select">
-        <option value="">Pilih produk</option>
-        @foreach ($products as $product)
-            <option value="{{ $product->id }}"
-                    data-price="{{ $product->price }}">
-                {{ $product->name }}
-            </option>
-        @endforeach
-    </select>
-</div>
-
-                        <div class="col-md-2">
-                            <input type="number"
-                                   name="items[0][price]"
-                                   class="form-control text-center price"
-                                   value="0">
-                        </div>
-
-                        <div class="col-md-2">
-                            <input type="number"
-                                   name="items[0][qty]"
-                                   class="form-control text-center qty"
-                                   value="1" min="1">
-                        </div>
-
-                        <div class="col-md-2 text-right font-weight-bold">
-                            Rp <span class="subtotal">0</span>
-                        </div>
-
-                        <div class="col-md-1 text-center">
-                            <button type="button"
-                                    class="btn btn-danger btn-sm remove">
-                                ✕
-                            </button>
-                        </div>
-                    </div>
-
+                {{-- HARGA --}}
+                <div class="col-6 col-md-2 mb-3 mb-md-0">
+                    <label class="small font-weight-bold d-md-none text-muted">Harga</label>
+                    <input type="number" name="items[0][price]" class="form-control text-center price" value="0">
                 </div>
+
+                {{-- QTY --}}
+                <div class="col-6 col-md-2 mb-3 mb-md-0">
+                    <label class="small font-weight-bold d-md-none text-muted">Qty</label>
+                    <input type="number" name="items[0][qty]" class="form-control text-center qty" value="1" min="1">
+                </div>
+
+                {{-- SUBTOTAL & AKSI (Digabung di Mobile agar rapi) --}}
+                <div class="col-8 col-md-2 text-md-right subtotal-container">
+                    <label class="small font-weight-bold d-md-none text-muted">Subtotal</label><br class="d-md-none">
+                    <span class="font-weight-bold text-danger">Rp <span class="subtotal">0</span></span>
+                </div>
+
+                <div class="col-4 col-md-1 text-right text-md-center">
+                    <label class="small font-weight-bold d-md-none text-muted">Hapus</label><br class="d-md-none">
+                    <button type="button" class="btn btn-outline-danger btn-sm remove px-3">✕</button>
+                </div>
+            </div>
 
             </div>
+
         </div>
+    </div>
 
     </div>
 
@@ -181,11 +240,58 @@
 <script>
 let index = 1;
 
+// =====================
+// UPDATE NOMOR ITEM
+// =====================
+function updateItemNumber() {
+    document.querySelectorAll('#itemsBody .item-row').forEach((row, i) => {
+        row.querySelector('.item-no').innerText = i + 1;
+    });
+}
+
+// =====================
+// Kunci No Pesanan WhatsApp
+// =====================
+document.getElementById('eCommerceSelect').addEventListener('change', function() {
+    const orderInput = document.getElementById('orderNumberInput');
+    
+    if (this.value === 'WhatsApp') {
+        orderInput.value = ''; 
+        orderInput.placeholder = 'Otomatis Sistem (WA-Tgl-Jam)';
+        orderInput.readOnly = true;
+        orderInput.classList.add('bg-light'); // Biar kelihatan terkunci
+    } else {
+        orderInput.placeholder = 'Masukkan nomor pesanan';
+        orderInput.readOnly = false;
+        orderInput.classList.remove('bg-light');
+    }
+});
+
+//Allert Notif
+@if(session('success'))
+    Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: "{{ session('success') }}",
+        timer: 3000
+    });
+@endif
+
+@if($errors->has('order_number'))
+    Swal.fire({
+        icon: 'error',
+        title: 'Gagal Simpan!',
+        text: 'Nomor pesanan sudah ada di sistem. Mohon cek kembali.',
+    });
+@endif
+
+// =====================
+// HITUNG TOTAL
+// =====================
 function calculate() {
     let total = 0;
 
     document.querySelectorAll('#itemsBody .item-row').forEach(row => {
-
         const price = Number(row.querySelector('.price').value) || 0;
         const qty   = Number(row.querySelector('.qty').value) || 0;
         const sub   = price * qty;
@@ -200,7 +306,25 @@ function calculate() {
         total.toLocaleString('id-ID');
 }
 
-// trigger hitung
+// =====================
+// INIT SELECT2
+// =====================
+function initSelect2(el) {
+    $(el).each(function () {
+        if ($(this).data('select2')) return;
+
+        $(this).select2({
+            theme: 'bootstrap4',
+            placeholder: 'Pilih produk',
+            allowClear: true,
+            width: '100%'
+        });
+    });
+}
+
+// =====================
+// INPUT LISTENER
+// =====================
 document.addEventListener('input', function (e) {
     if (e.target.classList.contains('price') ||
         e.target.classList.contains('qty')) {
@@ -208,71 +332,78 @@ document.addEventListener('input', function (e) {
     }
 });
 
-// tambah row
+// =====================
+// TAMBAH ROW
+// =====================
 document.getElementById('addRow').addEventListener('click', function () {
 
-    const options = document.querySelector('.product').innerHTML;
+    const firstSelect = document.querySelector(
+        '#itemsBody .item-row select'
+    );
 
-    const row = `
-    <div class="row align-items-center mb-3 border-bottom pb-3 item-row">
-        <div class="col-md-5">
-            <select name="items[${index}][product_id]"
-                    class="form-control product">
-                ${options}
-            </select>
+    const cloned = firstSelect.cloneNode(true);
+    cloned.value = '';
+    cloned.name = `items[${index}][product_id]`;
+
+    const row = document.createElement('div');
+    row.className = 'row align-items-center mb-3 border-bottom pb-3 item-row';
+
+    row.innerHTML = `
+        <div class="col-12 col-md-1 text-md-center font-weight-bold mb-2 mb-md-0">
+            <div class="item-no mx-auto mx-md-0"></div>
         </div>
 
-        <div class="col-md-2">
-            <input type="number"
-                   name="items[${index}][price]"
-                   class="form-control text-center price"
-                   value="0">
+        <div class="col-12 col-md-4 mb-3 mb-md-0 product-col">
+            <label class="small font-weight-bold d-md-none text-muted">Produk</label>
         </div>
 
-        <div class="col-md-2">
-            <input type="number"
-                   name="items[${index}][qty]"
-                   class="form-control text-center qty"
-                   value="1" min="1">
+        <div class="col-6 col-md-2 mb-3 mb-md-0">
+            <label class="small font-weight-bold d-md-none text-muted">Harga</label>
+            <input type="number" name="items[${index}][price]" class="form-control text-center price" value="0">
         </div>
 
-        <div class="col-md-2 text-right font-weight-bold">
-            Rp <span class="subtotal">0</span>
+        <div class="col-6 col-md-2 mb-3 mb-md-0">
+            <label class="small font-weight-bold d-md-none text-muted">Qty</label>
+            <input type="number" name="items[${index}][qty]" class="form-control text-center qty" value="1" min="1">
         </div>
 
-        <div class="col-md-1 text-center">
-            <button type="button"
-                    class="btn btn-danger btn-sm remove">
-                ✕
-            </button>
+        <div class="col-8 col-md-2 text-md-right subtotal-container">
+            <label class="small font-weight-bold d-md-none text-muted">Subtotal</label><br class="d-md-none">
+            <span class="font-weight-bold text-danger">Rp <span class="subtotal">0</span></span>
         </div>
-    </div>
+
+        <div class="col-4 col-md-1 text-right text-md-center">
+            <label class="small font-weight-bold d-md-none text-muted">Hapus</label><br class="d-md-none">
+            <button type="button" class="btn btn-outline-danger btn-sm remove px-3">✕</button>
+        </div>
     `;
 
-    document.getElementById('itemsBody')
-        .insertAdjacentHTML('beforeend', row);
+    row.querySelector('.product-col').appendChild(cloned);
+    document.getElementById('itemsBody').appendChild(row);
 
+    initSelect2(cloned);
     index++;
+
+    updateItemNumber();
 });
 
-// hapus row
+// =====================
+// HAPUS ROW
+// =====================
 document.addEventListener('click', function (e) {
     if (e.target.classList.contains('remove')) {
         e.target.closest('.item-row').remove();
         calculate();
+        updateItemNumber();
     }
 });
 
-    $(function () {
-        $('.product-select').select2({
-            theme: 'bootstrap4',
-            placeholder: 'Pilih produk',
-            allowClear: true,
-            width: '100%'
-        });
-    });
-
-
+// =====================
+// INIT AWAL
+// =====================
+$(document).ready(function () {
+    initSelect2('.product-select');
+    updateItemNumber();
+});
 </script>
-
 @endpush

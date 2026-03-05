@@ -36,9 +36,15 @@
 
                         <a href="{{ route('user.orders.export.pdf', request()->query()) }}"
                         class="btn btn-danger btn-sm">
-                            PDF
+                            Cetak PDF Stok
                         </a>
 
+                        <a href="{{ route('user.orders.print', request()->query()) }}"
+                        target="_blank"
+                        class="btn btn-primary btn-sm">
+                        Cetak PDF All
+                        </a>
+                        
                         <a href="{{ route('user.orders.create') }}"
                         class="btn btn-primary btn-sm">
                             <i class="fas fa-plus"></i> Tambah Order
@@ -83,10 +89,9 @@
                                         <select name="status"
                                                 class="form-control form-control-sm">
                                             <option value="">Semua Status</option>
-                                            <option value="pending" {{ request('status') == 'pending' ? 'selected' : '' }}>Pending</option>
                                             <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Proses</option>
                                             <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
-                                            <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option>
+                                            <!-- <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option> -->
                                         </select>
                                     </div>
 
@@ -179,8 +184,8 @@
                                                 <i class="fas fa-eye"></i>
                                             </a>
 
-                                            <a href="{{ route('user.orders.edit', $order) }}"
-                                               class="btn btn-xs btn-warning">
+                                            <a href="{{ route('user.orders.edit', $order) }}?{{ http_build_query(request()->query()) }}"
+                                            class="btn btn-xs btn-warning">
                                                 <i class="fas fa-edit"></i>
                                             </a>
 
@@ -214,7 +219,7 @@
                     </div>
 
                     {{-- FOOTER --}}
-                    <div class="card-footer d-flex justify-content-between align-items-center">
+                    <div class="card-footer d-flex align-items-center">
 
                         <small class="text-muted">
                             Menampilkan
@@ -225,8 +230,9 @@
                             {{ $orders->total() }}
                             data
                         </small>
-
-                        {{ $orders->withQueryString()->links() }}
+                        <div class="ml-auto">
+                        {{ $orders->links() }}
+                    </div>
 
                     </div>
 

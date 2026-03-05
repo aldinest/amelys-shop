@@ -16,6 +16,10 @@
 @csrf
 @method('PUT')
 
+@foreach(request()->query() as $key => $value)
+    <input type="hidden" name="redirect_query[{{ $key }}]" value="{{ $value }}">
+@endforeach
+
 <div class="card card-primary">
 <div class="card-header">
     <h3 class="card-title">Informasi Order</h3>
@@ -61,24 +65,24 @@ value="{{ old('customer_name',$order->customer_name) }}">
 <label>Status</label>
 <select name="status" class="form-control">
 
-<option value="pending"
+<!-- <option value="pending"
 {{ $order->status=='pending'?'selected':'' }}>
 Pending
-</option>
+</option> -->
 
 <option value="processing"
 {{ $order->status=='processing'?'selected':'' }}>
-Processing
+Diproses
 </option>
 
-<option value="shipped"
+<!-- <option value="shipped"
 {{ $order->status=='shipped'?'selected':'' }}>
 Shipped
-</option>
+</option> -->
 
 <option value="completed"
 {{ $order->status=='completed'?'selected':'' }}>
-Completed
+Selesai
 </option>
 
 </select>
@@ -172,7 +176,7 @@ Rp {{ number_format($netTotal,0,',','.') }}
 <div class="card-footer">
     <div class="d-flex gap-2">
 
-        <a href="{{ route('user.orders.index') }}"
+        <a href="{{ route('user.orders.index', request()->query()) }}"
            class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Kembali
         </a>

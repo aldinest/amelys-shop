@@ -130,7 +130,7 @@ Rp {{ number_format($netTotal,0,',','.') }}
 </div>
 
 <div class="card-footer d-flex gap-2">
-    <a href="{{ route('user.orders.index') }}" class="btn btn-secondary">
+    <a href="{{ route('user.orders.index', request()->query()) }}" class="btn btn-secondary">
         <i class="fas fa-arrow-left"></i> Kembali
     </a>
 

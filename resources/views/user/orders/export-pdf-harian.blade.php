@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <title>Laporan Penjualan</title>
+    <title>Laporan Stok Harian</title>
 
     <style>
         body {
@@ -39,6 +39,10 @@
             text-align: center;
         }
 
+        td.right {
+            text-align: right;
+        }
+
         .total-row td {
             font-weight: bold;
         }
@@ -59,37 +63,47 @@
         <thead>
             <tr>
                 <th>Nama Barang</th>
-                <th width="120">Jenis</th>
                 <th width="110">Jumlah Terjual</th>
+                <th width="140">Total Harga</th>
             </tr>
         </thead>
 
-        <tbody>
-            @php $grandTotal = 0; @endphp
+    <tbody>
+        @php
+            $totalQty = 0;
+            $grandTotalPrice = 0;
+        @endphp
 
-            @forelse ($items as $item)
-                <tr>
-                    <td>{{ $item->product_name }}</td>
-                    <td class="center">{{ ucfirst($item->product_type) }}</td>
-                    <td class="center">{{ $item->total_qty }}</td>
-                </tr>
+        @forelse ($items as $item)
+            <tr>
+                <td>{{ $item->product_name }}</td>
+                <td class="center">{{ $item->total_qty }}</td>
+                <td class="right">
+                    Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                </td>
+            </tr>
 
-                @php
-                    $grandTotal += $item->total_qty;
-                @endphp
-            @empty
-                <tr>
-                    <td colspan="3" style="text-align:center;">
-                        Tidak ada penjualan pada periode ini
-                    </td>
-                </tr>
-            @endforelse
-        </tbody>
+            @php
+                $totalQty += $item->total_qty;
+                $grandTotalPrice += $item->total_price;
+            @endphp
+        @empty
+            <tr>
+                <td colspan="3" style="text-align:center;">
+                    Tidak ada penjualan pada periode ini
+                </td>
+            </tr>
+        @endforelse
+    </tbody>
+
 
         <tfoot>
             <tr class="total-row">
-                <td colspan="2">TOTAL ITEM</td>
-                <td class="center">{{ $grandTotal }}</td>
+                <td>TOTAL</td>
+                <td class="center">{{ $totalQty }}</td>
+                <td class="right">
+                    Rp {{ number_format($grandTotalPrice, 0, ',', '.') }}
+                </td>
             </tr>
         </tfoot>
     </table>
