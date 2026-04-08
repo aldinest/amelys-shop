@@ -2,6 +2,41 @@
 
 @section('content')
 
+<style>
+    /* Mengatasi bug teks turun ke bawah */
+    .text-nowrap {
+        white-space: nowrap !important;
+    }
+
+    /* Membuat jarak antar tombol seragam */
+    .gap-2 {
+        gap: 0.5rem !important;
+    }
+
+    /* Memastikan semua input & button punya tinggi yang sama */
+    .form-control-sm, 
+    .btn-sm, 
+    .input-group-text,
+    .dropdown-toggle {
+        height: 31px !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    /* Khusus untuk dropdown agar teks e-commerce rata kiri */
+    .dropdown-toggle {
+        justify-content: space-between;
+    }
+
+    /* Jarak vertikal saat layar mengecil (mobile) */
+    @media (max-width: 768px) {
+        .mb-1 {
+            margin-bottom: 0.5rem !important;
+        }
+    }
+</style>
+
     <div class="content-wrapper">
 
     {{-- ALERT --}}
@@ -59,6 +94,7 @@
 
         {{-- CONTENT --}}
         <section class="content">
+
             <div class="container-fluid">
                 <div class="card shadow-sm">
 
@@ -72,56 +108,74 @@
                             </div>
 
                             {{-- FILTER --}}
-                            <div class="col-md-9 col-12 mb-2 mb-md-0">
-                                <form method="GET"
-                                    action="{{ route('user.orders.index') }}"
-                                    class="row g-2 g-md-1">
+<div class="col-md-9 col-12">
+    <form method="GET" action="{{ route('user.orders.index') }}">
+        <div class="row gx-2 gy-2 justify-content-end align-items-center">
+            
+            {{-- Search --}}
+            <div class="col-xl-2 col-lg-3 col-md-6 col-12 mb-1">
+                <input type="text" name="search" value="{{ request('search') }}" 
+                    placeholder="Cari..." class="form-control form-control-sm">
+            </div>
 
-                                    <div class="col-md-3 col-12 mb-2 mb-md-0">
-                                        <input type="text"
-                                            name="search"
-                                            value="{{ request('search') }}"
-                                            placeholder="Cari..."
-                                            class="form-control form-control-sm">
-                                    </div>
-
-                                    <div class="col-md-2 col-12 mb-2 mb-md-0">
-                                        <select name="status"
-                                                class="form-control form-control-sm">
-                                            <option value="">Semua Status</option>
-                                            <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Proses</option>
-                                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
-                                            <!-- <option value="batal" {{ request('status') == 'batal' ? 'selected' : '' }}>Batal</option> -->
-                                        </select>
-                                    </div>
-
-                                    <div class="col-md-2 col-6 mb-2 mb-md-0">
-                                        <input type="date"
-                                            name="date_from"
-                                            value="{{ request('date_from') }}"
-                                            class="form-control form-control-sm">
-                                    </div>
-
-                                    <div class="col-md-2 col-6 mb-2 mb-md-0">
-                                        <input type="date"
-                                            name="date_to"
-                                            value="{{ request('date_to') }}"
-                                            class="form-control form-control-sm">
-                                    </div>
-
-                                    <div class="col-md-3 col-12 d-flex gap-2">
-                                        <button class="btn btn-secondary btn-sm w-100">
-                                            Filter
-                                        </button>
-
-                                        <a href="{{ route('user.orders.index') }}"
-                                        class="btn btn-light btn-sm w-100">
-                                            Reset
-                                        </a>
-                                    </div>
-
-                                </form>
+            {{-- E-Commerce --}}
+            <div class="col-xl-2 col-lg-3 col-md-6 col-12 mb-1">
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle w-100 text-left d-flex justify-content-between align-items-center" 
+                        type="button" id="dropdownEcom" data-toggle="dropdown">
+                        <span class="text-truncate">E-Commerce</span>
+                    </button>
+                    <div class="dropdown-menu p-3 shadow" style="min-width: 200px;">
+                        @php $selectedEcoms = request('e_commerce', []); @endphp
+                        @foreach(['Shopee', 'WhatsApp', 'Tokopedia', 'TikTok'] as $ecom)
+                            <div class="custom-control custom-checkbox mb-2">
+                                <input type="checkbox" name="e_commerce[]" value="{{ $ecom }}" 
+                                    class="custom-control-input" id="check-{{ $ecom }}"
+                                    {{ in_array($ecom, $selectedEcoms) ? 'checked' : '' }}>
+                                <label class="custom-control-label font-weight-normal" for="check-{{ $ecom }}">
+                                    {{ $ecom }}
+                                </label>
                             </div>
+                        @endforeach
+                    </div>
+                </div>
+            </div>
+
+            {{-- Status --}}
+            <div class="col-xl-2 col-lg-3 col-md-6 col-12 mb-1">
+                <select name="status" class="form-control form-control-sm">
+                    <option value="">Semua Status</option>
+                    <option value="processing" {{ request('status') == 'processing' ? 'selected' : '' }}>Proses</option>
+                    <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
+                </select>
+            </div>
+
+            {{-- Tanggal --}}
+            <div class="col-xl-4 col-lg-6 col-md-6 col-12 mb-1">
+                <div class="input-group input-group-sm">
+                    <input type="date" name="date_from" value="{{ request('date_from') }}" class="form-control">
+                    <div class="input-group-append">
+                        <span class="input-group-text px-2">s/d</span>
+                    </div>
+                    <input type="date" name="date_to" value="{{ request('date_to') }}" class="form-control">
+                </div>
+            </div>
+
+            {{-- Buttons (Perbaikan di sini) --}}
+            <div class="col-xl-2 col-lg-6 col-md-6 col-12 mb-1">
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-secondary btn-sm flex-fill text-nowrap shadow-sm">
+                        Filter
+                    </button>
+                    <a href="{{ route('user.orders.index') }}" class="btn btn-outline-secondary btn-sm flex-fill text-nowrap shadow-sm">
+                        Reset
+                    </a>
+                </div>
+            </div>
+
+        </div>
+    </form>
+</div>
 
                         </div>
                     </div>
@@ -174,7 +228,13 @@
                                         </td>
 
                                         <td class="text-right">
-                                            Rp {{ number_format($order->net_total ?? 0, 0, ',', '.') }}
+                                            @if($order->e_commerce == 'WhatsApp')
+                                                {{-- Untuk WA, tampilkan Net Total (yang sudah otomatis setara Grand Total) --}}
+                                                    Rp {{ number_format($order->net_total ?? 0, 0, ',', '.') }}
+                                            @else
+                                                {{-- Untuk E-Commerce lain, tetap tampilkan net_total (yang diisi saat input uang cair) --}}
+                                                Rp {{ number_format($order->net_total ?? 0, 0, ',', '.') }}
+                                            @endif
                                         </td>
 
                                         <td class="text-center">

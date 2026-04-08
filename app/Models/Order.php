@@ -40,10 +40,10 @@ class Order extends Model
         return $this->items->sum('sub_total');
     }
 
-    public function getNetTotalAttribute()
-    {
-        return $this->gross_total - $this->net_payout;
-    }
+    // public function getNetTotalAttribute()
+    // {
+    //     return $this->gross_total - $this->net_payout;
+    // }
 
     public function getRouteKeyName()
     {

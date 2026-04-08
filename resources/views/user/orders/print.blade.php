@@ -1,83 +1,115 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
-        /* Konfigurasi Halaman & Nomor Halaman */
-        @page {
-            margin: 1.5cm;
-        }
+        @page { margin: 1cm; }
         
         body {
             font-family: 'Helvetica', sans-serif;
-            font-size: 10px;
+            font-size: 8px;
             color: #333;
-            line-height: 1.4;
+            line-height: 1.2;
         }
 
-        /* Penomoran Halaman (Khusus DomPDF/Cetak Browser) */
-        .footer {
-            position: fixed;
-            bottom: -30px;
-            left: 0;
-            right: 0;
-            text-align: center;
-            font-size: 9px;
-            color: #777;
-        }
-        .footer .page-number:after {
-            content: "Halaman " counter(page);
+        .main-container { width: 100%; }
+
+        .order-wrapper {
+            width: 49%;
+            display: inline-block;
+            vertical-align: top;
+            margin-bottom: 4px;
         }
 
-        /* Mencegah Pesanan Terpotong (Page Break) */
         .order-box {
             border: 1px solid #000;
-            padding: 8px;
-            margin-bottom: 12px;
-            page-break-inside: avoid; /* Sangat Penting! */
-            break-inside: avoid;
+            padding: 6px;
+            margin: 2px;
+            background-color: #fff;
+            page-break-inside: avoid;
         }
 
         .order-header {
             font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #ddd;
+            border-bottom: 0.5px solid #ccc;
             margin-bottom: 5px;
             padding-bottom: 3px;
+            font-size: 7.5px;
         }
 
-        .meta { margin-bottom: 4px; }
-        .items { margin-left: 10px; }
-        .item { display: flex; justify-content: space-between; }
+        /* Container kanan untuk E-commerce & Status */
+        .header-right {
+            float: right;
+            text-align: right;
+        }
+
+        .ecommerce-label {
+            color: #555;
+            font-weight: normal;
+            margin-right: 5px;
+        }
+
+        .status-badge {
+            padding: 1px 4px;
+            border-radius: 2px;
+            font-size: 6.5px;
+            color: #fff;
+        }
+
+        .meta { margin-bottom: 4px; line-height: 1.4; }
+        
+        .item-row { 
+            clear: both;
+            border-bottom: 0.1px solid #f9f9f9;
+            padding: 2px 0;
+            position: relative; /* Penting untuk posisi harga */
+            min-height: 12px;
+        }
+
+        .item-price { 
+            float: right; 
+            font-weight: bold;
+            margin-left: 10px; /* Jeda minimal antara teks produk dan harga */
+            background: #fff; /* Menutupi garis jika teks produk terlalu panjang */
+        }
+
+        /* Tambahkan ini agar teks produk tidak menabrak harga */
+        .product-name {
+            display: block;
+            margin-right: 60px; /* Beri ruang kosong di kanan khusus untuk tempat harga */
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
 
         .total-row {
             border-top: 1px dashed #999;
-            margin-top: 6px;
-            padding-top: 4px;
+            margin-top: 5px;
+            padding-top: 2px;
             text-align: right;
             font-weight: bold;
+            font-size: 8.5px;
         }
 
-        /* Kotak Ringkasan Akhir */
+        .payout-section {
+            margin-top: 3px;
+            text-align: right;
+            font-size: 7px;
+        }
+        .text-cair { color: #0056b3; }
+        .text-bersih { color: #218838; font-weight: bold; }
+
+        .footer { position: fixed; bottom: -20px; width: 100%; text-align: center; font-size: 7px; color: #999; }
+        .footer .page-number:after { content: "Halaman " counter(page); }
+
         .grand-summary {
-            margin-top: 25px;
-            padding: 12px;
-            background-color: #f9f9f9;
-            border: 2px solid #000;
-            page-break-inside: avoid;
+            margin-top: 15px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border: 1.5px solid #000;
+            clear: both;
         }
-        .grand-summary h4 {
-            margin-top: 0;
-            border-bottom: 1px solid #000;
-            padding-bottom: 5px;
-            text-transform: uppercase;
-        }
-        .summary-line {
-            display: flex;
-            justify-content: space-between;
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
+
+        .clearfix::after { content: ""; clear: both; display: table; }
     </style>
 </head>
 <body>
@@ -86,78 +118,97 @@
     <span class="page-number"></span>
 </div>
 
-<h2 style="text-align: center;">LAPORAN PENJUALAN AMELYS</h2>
-<p style="text-align: center; margin-top: -10px;">Periode: {{ request('date_from') }} s/d {{ request('date_to') }}</p>
+<div style="text-align: center; margin-bottom: 12px;">
+    <h2 style="margin:0; font-size: 13px; text-transform: uppercase;">Laporan Penjualan Amelys</h2>
+    <p style="margin:2px 0; font-size: 9px; color: #555;">Periode: {{ request('date_from') }} s/d {{ request('date_to') }}</p>
+</div>
 
 @php
     $totalKotor = 0;
     $totalCair = 0;
     $totalBersih = 0;
-    $jumlahPesanan = count($orders);
 @endphp
 
-@foreach ($orders as $order)
-    @php
-        $orderTotal = $order->items->sum('sub_total');
-        $totalKotor += $orderTotal;
+<div class="main-container">
+    @foreach ($orders as $order)
+        @php
+            $orderTotal = $order->items->sum('sub_total');
+            $totalKotor += $orderTotal;
 
-        if ($order->status === 'completed') {
-            $totalCair += $order->net_payout;
-            $totalBersih += $order->net_total;
-        }
-    @endphp
+            if ($order->status === 'completed') {
+                $totalCair += $order->net_payout;
+                $totalBersih += $order->net_total;
+            }
+            
+            // Warna status
+            $statusBg = $order->status == 'completed' ? '#218838' : '#e67e22';
+        @endphp
 
-    <div class="order-box">
-        <div class="order-header">
-            <span>#{{ $order->order_number }} [{{ strtoupper($order->e_commerce) }}]</span>
-            <span>STATUS: {{ strtoupper($order->status) }}</span>
-        </div>
-
-        <div class="meta">
-            <strong>Pelanggan:</strong> {{ $order->customer_name }} <br>
-            <strong>Tanggal:</strong> {{ $order->created_at->format('d/m/Y H:i') }}
-        </div>
-
-        <div class="items">
-            @foreach ($order->items as $item)
-                <div class="item">
-                    <span>• {{ $item->product->name }} ({{ $item->quantity }}x)</span>
-                    <span>Rp {{ number_format($item->sub_total) }}</span>
+        <div class="order-wrapper">
+            <div class="order-box">
+                <div class="order-header clearfix">
+                    <div class="header-right">
+                        <span class="ecommerce-label">[{{ strtoupper($order->e_commerce) }}]</span>
+                        <span class="status-badge" style="background-color: {{ $statusBg }};">
+                            {{ strtoupper($order->status) }}
+                        </span>
+                    </div>
+                    #{{ $order->order_number }}
                 </div>
-            @endforeach
-        </div>
 
-        <div class="total-row">
-            Total Order: Rp {{ number_format($orderTotal) }}
-        </div>
+                <div class="meta">
+                    <strong>Pelanggan:</strong> {{ Str::limit($order->customer_name, 25) }}<br>
+                    <strong>Tanggal:</strong> {{ $order->created_at->format('d/m/Y') }}
+                </div>
 
-        @if ($order->status === 'completed')
-            <div style="margin-top: 5px; text-align: right; font-size: 9px; color: #444;">
-                <span>Uang Cair: Rp {{ number_format($order->net_payout) }}</span> | 
-                <strong>Bersih: Rp {{ number_format($order->net_total) }}</strong>
+                <div class="items">
+                    @foreach ($order->items as $item)
+                        <div class="item-row clearfix">
+                            <span class="item-price">{{ number_format($item->sub_total) }}</span>
+                            
+                            <span class="product-name">
+                                • {{ $item->product->name }} ({{ $item->quantity }}x)
+                            </span>
+                        </div>
+                    @endforeach
+                </div>
+
+                <div class="total-row">
+                    Total Order: Rp {{ number_format($orderTotal) }}
+                </div>
+
+                @if ($order->status === 'completed')
+                    <div class="payout-section">
+                        <span class="text-cair">Uang Cair: Rp {{ number_format($order->net_payout) }}</span> 
+                        <span style="color: #ccc;"> | </span>
+                        <span class="text-bersih">Bersih: Rp {{ number_format($order->net_total) }}</span>
+                    </div>
+                @endif
             </div>
-        @endif
-    </div>
-@endforeach
+        </div>
+    @endforeach
+</div>
 
 <div class="grand-summary">
-    <h4>REKAPITULASI TOTAL</h4>
-    <div class="summary-line">
-        <span>Total Pesanan Dicetak:</span>
-        <strong>{{ $jumlahPesanan }} Order</strong>
-    </div>
-    <div class="summary-line">
-        <span>Total Omzet (Kotor):</span>
-        <strong>Rp {{ number_format($totalKotor) }}</strong>
-    </div>
-    <div class="summary-line" style="color: #2c3e50;">
-        <span>Total Dana Cair (Completed):</span>
-        <strong>Rp {{ number_format($totalCair) }}</strong>
-    </div>
-    <div class="summary-line" style="border-top: 1px solid #000; padding-top: 5px; margin-top: 5px; font-size: 14px;">
-        <span>TOTAL HASIL BERSIH:</span>
-        <strong>Rp {{ number_format($totalBersih) }}</strong>
-    </div>
+    <h4 style="margin:0 0 8px 0; border-bottom: 1px solid #000; font-size: 10px;">REKAPITULASI TOTAL</h4>
+    <table width="100%" style="font-size: 9px; border-collapse: collapse;">
+        <tr>
+            <td style="padding: 2px 0;">Total Pesanan Dicetak:</td>
+            <td align="right"><strong>{{ count($orders) }} Order</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 2px 0;">Total Omzet (Kotor):</td>
+            <td align="right"><strong>Rp {{ number_format($totalKotor) }}</strong></td>
+        </tr>
+        <tr>
+            <td style="padding: 2px 0;" class="text-cair">Total Dana Cair (Completed):</td>
+            <td align="right" class="text-cair"><strong>Rp {{ number_format($totalCair) }}</strong></td>
+        </tr>
+        <tr style="font-size: 12px;">
+            <td style="border-top: 1px solid #000; padding-top: 5px; margin-top: 5px;" class="text-bersih">TOTAL HASIL BERSIH:</td>
+            <td align="right" style="border-top: 1px solid #000; padding-top: 5px; margin-top: 5px;" class="text-bersih"><strong>Rp {{ number_format($totalBersih) }}</strong></td>
+        </tr>
+    </table>
 </div>
 
 </body>

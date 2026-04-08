@@ -30,6 +30,11 @@ class OrderController extends Controller
             });
         }
 
+        // Cek jika request e_commerce ada dan merupakan array
+        if ($request->has('e_commerce') && is_array($request->e_commerce)) {
+            $query->whereIn('e_commerce', $request->e_commerce);
+        }
+
         // Filter status
         if ($request->status) {
             $query->where('status', $request->status);
@@ -37,14 +42,14 @@ class OrderController extends Controller
 
         // Filter tanggal
         if ($request->filled('date_from') && $request->filled('date_to')) {
-            $query->whereBetween('created_at', [
+            $query->whereBetween('order_date', [
                 $request->date_from . ' 00:00:00',
                 $request->date_to . ' 23:59:59',
             ]);
         } elseif ($request->filled('date_from')) {
-            $query->whereDate('created_at', '>=', $request->date_from);
+            $query->whereDate('order_date', '>=', $request->date_from);
         } elseif ($request->filled('date_to')) {
-            $query->whereDate('created_at', '<=', $request->date_to);
+            $query->whereDate('order_date', '<=', $request->date_to);
         }
 
         return $query;
@@ -92,6 +97,8 @@ class OrderController extends Controller
                 'customer_name'=> $request->customer_name,
                 'e_commerce'   => $request->e_commerce,
                 'status'       => $request->status,
+                'gross_total'  => $request->net_total ?? 0, 
+                'net_total'    => $request->net_total ?? 0,
             ]);
 
             foreach ($request->items as $item) {
@@ -189,7 +196,7 @@ class OrderController extends Controller
                 DB::raw('SUM(order_items.quantity) as total_qty'),
                 DB::raw('SUM(order_items.sub_total) as total_price')
             )
-            ->whereBetween('orders.created_at', [$dateFrom, $dateTo])
+            ->whereBetween('orders.order_date', [$dateFrom, $dateTo])
             ->groupBy('products.id', 'products.name')
             ->orderBy('products.name')
             ->get();

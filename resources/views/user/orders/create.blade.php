@@ -107,7 +107,8 @@
 
                 <div class="col-md-6 mb-3">
                     <label class="small font-weight-bold text-muted">Status</label>
-                    <select name="status" class="form-control">
+                    {{-- Tambahkan id="statusSelect" di bawah ini --}}
+                    <select name="status" id="statusSelect" class="form-control">
                         <option value="processing">Diproses</option>
                         <option value="completed">Selesai</option>
                     </select>
@@ -213,13 +214,15 @@
                     Rp <span id="grandTotal">0</span>
                 </h2>
 
-                <button type="submit"
-                        class="btn btn-danger btn-block font-weight-bold">
+                {{-- INPUT HIDDEN INI HARUS ADA DI DALAM FORM --}}
+                <input type="hidden" name="net_total" id="netTotalInput" value="0">
+
+                <button type="submit" class="btn btn-danger btn-block font-weight-bold">
                     Simpan Pesanan
                 </button>
 
                 <a href="{{ route('user.orders.index') }}"
-                   class="btn btn-light btn-block mt-2">
+                class="btn btn-light btn-block mt-2">
                     Kembali
                 </a>
 
@@ -250,21 +253,91 @@ function updateItemNumber() {
 }
 
 // =====================
-// Kunci No Pesanan WhatsApp
+// Kunci No Pesanan & Status WhatsApp
 // =====================
 document.getElementById('eCommerceSelect').addEventListener('change', function() {
     const orderInput = document.getElementById('orderNumberInput');
+    const statusSelect = document.getElementById('statusSelect'); // Ambil element status
     
     if (this.value === 'WhatsApp') {
+        // Logika Nomor Pesanan
         orderInput.value = ''; 
         orderInput.placeholder = 'Otomatis Sistem (WA-Tgl-Jam)';
         orderInput.readOnly = true;
-        orderInput.classList.add('bg-light'); // Biar kelihatan terkunci
+        orderInput.classList.add('bg-light');
+
+        // Logika Status (Kunci ke Selesai)
+        statusSelect.value = 'completed'; // Set ke Selesai
+        statusSelect.disabled = true;      // Kunci input
+        
+        // Tambahkan input hidden agar value 'status' tetap terkirim ke backend 
+        // karena input yang 'disabled' tidak akan masuk ke request POST
+        if (!document.getElementById('hiddenStatus')) {
+            let hiddenInput = document.createElement('input');
+            hiddenInput.type = 'hidden';
+            hiddenInput.name = 'status';
+            hiddenInput.value = 'completed';
+            hiddenInput.id = 'hiddenStatus';
+            statusSelect.parentNode.appendChild(hiddenInput);
+        }
     } else {
+        // Kembalikan Nomor Pesanan
         orderInput.placeholder = 'Masukkan nomor pesanan';
         orderInput.readOnly = false;
         orderInput.classList.remove('bg-light');
+
+        // Kembalikan Status
+        statusSelect.disabled = false;
+        
+        // Hapus input hidden jika ada
+        const hiddenInput = document.getElementById('hiddenStatus');
+        if (hiddenInput) {
+            hiddenInput.remove();
+        }
     }
+});
+
+// =====================
+// Menampilkan total WA di index orders
+// =====================
+function calculate() {
+    let total = 0;
+    const eCommerce = document.getElementById('eCommerceSelect').value;
+    const netTotalInput = document.getElementById('netTotalInput');
+
+    // Hitung total dari baris produk
+    document.querySelectorAll('#itemsBody .item-row').forEach(row => {
+        const price = Number(row.querySelector('.price').value) || 0;
+        const qty   = Number(row.querySelector('.qty').value) || 0;
+        const sub   = price * qty;
+
+        row.querySelector('.subtotal').innerText = sub.toLocaleString('id-ID');
+        total += sub;
+    });
+
+    // Update teks Grand Total di layar kanan
+    document.getElementById('grandTotal').innerText = total.toLocaleString('id-ID');
+
+    // LOGIKA KRUSIAL: Isi input hidden
+    if (netTotalInput) {
+        if (eCommerce === 'WhatsApp') {
+            netTotalInput.value = total;
+            console.log("Input Hidden Terisi (WA): ", netTotalInput.value);
+        } else {
+            netTotalInput.value = 0;
+            console.log("Input Hidden Terisi (Lain): ", netTotalInput.value);
+        }
+    } else {
+        console.error("WADUH: Element netTotalInput nggak ketemu di HTML!");
+    }
+}
+
+// Tambahkan listener agar saat pilih produk di Select2, harga otomatis terisi
+$(document).on('select2:select', '.product-select', function(e) {
+    const price = e.params.data.element.dataset.price;
+    const row = $(this).closest('.item-row');
+    row.find('.price').val(price); // Set harga otomatis
+    calculate(); // Hitung ulang
 });
 
 //Allert Notif
@@ -285,26 +358,6 @@ document.getElementById('eCommerceSelect').addEventListener('change', function()
     });
 @endif
 
-// =====================
-// HITUNG TOTAL
-// =====================
-function calculate() {
-    let total = 0;
-
-    document.querySelectorAll('#itemsBody .item-row').forEach(row => {
-        const price = Number(row.querySelector('.price').value) || 0;
-        const qty   = Number(row.querySelector('.qty').value) || 0;
-        const sub   = price * qty;
-
-        row.querySelector('.subtotal').innerText =
-            sub.toLocaleString('id-ID');
-
-        total += sub;
-    });
-
-    document.getElementById('grandTotal').innerText =
-        total.toLocaleString('id-ID');
-}
 
 // =====================
 // INIT SELECT2
@@ -404,6 +457,14 @@ document.addEventListener('click', function (e) {
 $(document).ready(function () {
     initSelect2('.product-select');
     updateItemNumber();
+    
+    // TAMBAHKAN INI: Panggil hitung saat awal biar input hidden sinkron
+    calculate(); 
+
+    // Tambahan: Pastikan setiap ada perubahan Select2, fungsi hitung jalan
+    $('.product-select').on('change', function() {
+        calculate();
+    });
 });
 </script>
 @endpush
