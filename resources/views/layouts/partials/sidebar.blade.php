@@ -101,6 +101,17 @@
                             </a>
                         </li>
                     </ul>
+
+                    <ul>
+                        <li class="nav-item">
+                            <a href="{{ route('user.history.index')}}"
+                            class="nav-link {{ request()->routeIs('user.history.index') ? 'active' : '' }}">
+                                <i class="fas fa-history nav-icon"></i>
+                                <p>Coming Soon</p>
+                            </a>
+                        </li>
+                    </ul>
+
                 </li>
 
             </ul>

@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\OrderHistoryController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
@@ -40,20 +41,27 @@ use Illuminate\Support\Facades\Route;
 
         Route::get('orders/print', [OrderController::class, 'print'])
         ->name('orders.print');
+        Route::get('orders/print-massal', [OrderController::class, 'printMassal'])->name('orders.print-massal');
         Route::get('/orders/export/pdf', [OrderController::class, 'exportPdf'])
         ->name('orders.export.pdf');
-                Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])
+        Route::get('/orders/export/excel', [OrderController::class, 'exportExcel'])
         ->name('orders.export.excel');
+
+        // 'user.history.export_pdf'
+        Route::get('/history/export-pdf', [OrderHistoryController::class, 'exportPdf'])->name('history.export_pdf');
 
         //Route Pesanan
         Route::resource('orders', OrderController::class);
         Route::get('/orders/{id}', [OrderController::class, 'show']);
 
-
-
         //Route Produk
         Route::resource('products', ProductController::class)
             ->except(['show']);
+
+        //Order History
+        Route::get('/history', [OrderHistoryController::class, 'index'])
+        ->name('history.index');
+
     });
 
 

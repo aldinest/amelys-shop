@@ -22,6 +22,7 @@ class Order extends Model
         'gross_total',
         'net_payout',
         'net_total',
+        'is_printed',
     ];
 
     public function user()

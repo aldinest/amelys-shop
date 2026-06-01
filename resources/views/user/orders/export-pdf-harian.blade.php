@@ -50,13 +50,12 @@
 </head>
 <body>
 
-    <h2>LAPORAN PENJUALAN</h2>
+   <h2>LAPORAN PENJUALAN (STATUS: COMPLETED)</h2>
 
     <div class="periode">
-        Periode :
-        {{ $dateFrom->format('d-m-Y') }}
-        s/d
-        {{ $dateTo->format('d-m-Y') }}
+        Periode : {{ $dateFrom->format('d-m-Y') }} s/d {{ $dateTo->format('d-m-Y') }}
+        <br>
+        <small>*Nilai harga sudah disesuaikan dengan pendapatan bersih (net payout)</small>
     </div>
 
     <table>
@@ -79,13 +78,13 @@
                 <td>{{ $item->product_name }}</td>
                 <td class="center">{{ $item->total_qty }}</td>
                 <td class="right">
-                    Rp {{ number_format($item->total_price, 0, ',', '.') }}
+                    Rp {{ number_format($item->total_payout, 0, ',', '.') }}
                 </td>
             </tr>
 
             @php
                 $totalQty += $item->total_qty;
-                $grandTotalPrice += $item->total_price;
+                $grandTotalPrice += $item->total_payout; 
             @endphp
         @empty
             <tr>

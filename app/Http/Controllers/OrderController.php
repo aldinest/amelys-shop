@@ -20,6 +20,14 @@ class OrderController extends Controller
      */
     private function applyFilters($query, Request $request)
     {
+        // Filter massal via checkbox (Jika ada, langsung batasi data terpilih saja)
+        if ($request->filled('selected_ids')) {
+            $ids = array_filter(explode(',', $request->selected_ids));
+            if (!empty($ids)) {
+                $query->whereIn('id', $ids);
+            }
+        }
+
         // Filter search
         if ($request->search) {
             $search = $request->search;
@@ -38,6 +46,15 @@ class OrderController extends Controller
         // Filter status
         if ($request->status) {
             $query->where('status', $request->status);
+        }
+
+        // FITUR BARU: Filter Berdasarkan Status Cetak
+        if ($request->filled('print_status')) {
+            if ($request->print_status === 'sudah') {
+                $query->where('is_printed', true);
+            } elseif ($request->print_status === 'belum') {
+                $query->where('is_printed', false);
+            }
         }
 
         // Filter tanggal
@@ -146,9 +163,8 @@ class OrderController extends Controller
             'net_total'     => $grossTotal - ($request->net_payout ?? 0),
         ]);
 
-        return redirect()
-            ->route('user.orders.index', $request->redirect_query ?? [])
-            ->with('success', 'Order berhasil diupdate');
+        return redirect()->route('user.orders.index', $request->query())
+        ->with('success', 'Order berhasil diupdate');
     }
 
     public function show($order_number)
@@ -163,7 +179,8 @@ class OrderController extends Controller
     public function destroy(Order $order)
     {
         $order->delete();
-        return redirect()->back()->with('success', 'Pesanan berhasil dihapus');
+        return redirect()->route('user.orders.index', $request->query())
+        ->with('success', 'Pesanan berhasil dihapus');
     }
 
     public function exportExcel(Request $request)
@@ -183,25 +200,116 @@ class OrderController extends Controller
             ->stream('orders.pdf');
     }
 
-    public function exportPdf(Request $request)
+    /**
+     * METHOD BARU: Menangani cetak massal nota dari data pilihan checkbox index
+     */
+    // Terapkan logika penanganan ini di fungsi Print, Excel, maupun PDF Stok kamu
+    public function printMassal(Request $request)
+    {
+        // LOGIKA A: JIKA ADMIN MENCENTANG DATA (Checkbox Menang Mutlak)
+        if ($request->has('selected_ids') && !empty($request->selected_ids)) {
+            $ids = explode(',', $request->selected_ids);
+            
+            // Tarik data yang dicentang saja, abaikan filter lain
+            $orders = Order::whereIn('order_number', $ids)->get();
+        } 
+    // LOGIKA B: JIKA TIDAK ADA CENTANGAN (Gunakan Filter Bawaan di Layar)
+        else {
+            $query = Order::query();
+
+            // 1. Filter Search (No Order / Customer)
+            if ($request->filled('search')) {
+                $query->where(function($q) use ($request) {
+                    $q->where('order_number', 'like', '%' . $request->search . '%')
+                    ->orWhere('customer_name', 'like', '%' . $request->search . '%');
+                });
+            }
+
+            // 2. Filter E-Commerce (Shopee, Tokopedia, dll)
+            if ($request->has('e_commerce') && !empty($request->e_commerce)) {
+                $query->whereIn('e_commerce', $request->e_commerce);
+            }
+
+            // 3. Filter Status Pesanan (Processing, Completed, dll)
+            if ($request->filled('status')) {
+                $query->where('status', $request->status);
+            }
+
+            // 4. Filter Status Cetak (Sudah / Belum)
+            if ($request->filled('print_status')) {
+                $statusCetak = ($request->print_status == 'sudah') ? 1 : 0;
+                $query->where('is_printed', $statusCetak);
+            }
+
+            // 5. Filter Rentang Tanggal
+            if ($request->filled('date_from')) {
+                $query->where('order_date', '>=', $request->date_from);
+            }
+            if ($request->filled('date_to')) {
+                $query->where('order_date', '<=', $request->date_to);
+            }
+
+            $orders = $query->get();
+        }
+
+        // --- DI SINI LOGIKA UPDATE STATUS IS_PRINTED ---
+        // Sebelum data di-render, tandai data tersebut sebagai "Sudah Dicetak" (1)
+        if ($orders->count() > 0) {
+            // Gunakan order_number sebagai filter dan pluck data
+            Order::whereIn('order_number', $orders->pluck('order_number'))->update(['is_printed' => 1]);
+        }
+
+        // Return ke file cetakan PDF / View kamu masing-masing
+        $pdf = \PDF::loadView('user.orders.print', compact('orders'));
+        return $pdf->stream('cetak-massal.pdf');
+        }
+
+   public function exportPdf(Request $request)
     {
         $dateFrom = $request->date_from ? Carbon::parse($request->date_from)->startOfDay() : Carbon::today()->startOfDay();
         $dateTo = $request->date_to ? Carbon::parse($request->date_to)->endOfDay() : Carbon::today()->endOfDay();
 
-        $items = DB::table('order_items')
+        // 1. Inisialisasi Query dasar
+        $query = DB::table('order_items')
             ->join('orders', 'orders.order_number', '=', 'order_items.order_number')
-            ->join('products', 'products.id', '=', 'order_items.product_id')
-            ->select(
+            ->join('products', 'products.id', '=', 'order_items.product_id');
+
+        // 2. Logika jika ada ID yang dicentang (Checkbox)
+        if ($request->filled('selected_ids')) {
+            $ids = array_filter(explode(',', $request->selected_ids));
+            
+            // --- VALIDASI: Cek apakah ada status selain 'completed' ---
+            $invalidOrders = DB::table('orders')
+                ->whereIn('order_number', $ids)
+                ->where('status', '!=', 'completed')
+                ->exists();
+
+            if ($invalidOrders) {
+                return back()->with('error', 'Gagal! Anda mencentang pesanan yang belum selesai (status bukan Completed). Hanya pesanan Completed yang bisa dicetak.');
+            }
+
+            $query->whereIn('orders.order_number', $ids);
+        } 
+        // 3. Logika filter tanggal (Jika tidak ada checkbox)
+        else {
+            $query->where('orders.status', 'completed')
+                ->whereBetween('orders.order_date', [$dateFrom, $dateTo]);
+        }
+
+        // 4. Eksekusi perhitungan (DIREVISI)
+        $items = $query->select(
                 'products.name as product_name',
                 DB::raw('SUM(order_items.quantity) as total_qty'),
-                DB::raw('SUM(order_items.sub_total) as total_price')
+                // Kita gunakan net_payout sekarang
+                DB::raw('SUM(order_items.sub_total * (orders.net_payout / NULLIF(orders.gross_total, 0))) as total_payout')
             )
-            ->whereBetween('orders.order_date', [$dateFrom, $dateTo])
             ->groupBy('products.id', 'products.name')
             ->orderBy('products.name')
             ->get();
 
+        // 5. Kembalikan ke View
         return Pdf::loadView('user.orders.export-pdf-harian', compact('items', 'dateFrom', 'dateTo'))
-            ->stream('laporan-penjualan.pdf');
+            ->stream('laporan-penjualan-cair.pdf');
     }
+
 }

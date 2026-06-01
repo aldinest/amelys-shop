@@ -3,6 +3,19 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
     <style>
+        @media print {
+            .main-container {
+                width: 100%;
+                display: block;
+            }
+            .order-wrapper {
+                width: 49% !important; /* Paksa jadi 2 kolom */
+                display: inline-block !important;
+                vertical-align: top;
+            }
+            /* Sembunyikan elemen yang tidak perlu saat print */
+            .no-print { display: none !important; }
+        }
         @page { margin: 1cm; }
         
         body {
