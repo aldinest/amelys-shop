@@ -171,7 +171,7 @@
                                 <option value="Shopee" {{ request('e_commerce') == 'Shopee' ? 'selected' : '' }}>Shopee</option>
                                 <option value="WhatsApp" {{ request('e_commerce') == 'WhatsApp' ? 'selected' : '' }}>WhatsApp</option>
                                 <option value="Tokopedia" {{ request('e_commerce') == 'Tokopedia' ? 'selected' : '' }}>Tokopedia</option>
-                                <option value="TikTok" {{ request('e_commerce') == 'TikTok' ? 'selected' : '' }}>TikTok</option>
+                                <option value="TikTok Shop" {{ request('e_commerce') == 'TikTok Shop' ? 'selected' : '' }}>TikTok Shop</option>
                             </select>
 
                             <select name="status" class="form-control form-control-sm filter-item">

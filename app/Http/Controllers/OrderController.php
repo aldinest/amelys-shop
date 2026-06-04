@@ -38,9 +38,14 @@ class OrderController extends Controller
             });
         }
 
-        // Cek jika request e_commerce ada dan merupakan array
-        if ($request->has('e_commerce') && is_array($request->e_commerce)) {
-            $query->whereIn('e_commerce', $request->e_commerce);
+        // Filter E-Commerce
+        // if ($request->has('e_commerce') && is_array($request->e_commerce)) {
+        //     $query->whereIn('e_commerce', $request->e_commerce);
+        // }
+
+        // remake
+        if ($request->filled('e_commerce')) {
+            $query->where('e_commerce', $request->e_commerce);
         }
 
         // Filter status
@@ -176,11 +181,12 @@ class OrderController extends Controller
         return view('user.orders.show', compact('order'));
     }
 
-    public function destroy(Order $order)
+    public function destroy(Request $request, Order $order)
     {
         $order->delete();
+        
         return redirect()->route('user.orders.index', $request->query())
-        ->with('success', 'Pesanan berhasil dihapus');
+            ->with('success', 'Pesanan berhasil dihapus');
     }
 
     public function exportExcel(Request $request)
