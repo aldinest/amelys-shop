@@ -107,7 +107,7 @@
                             <a href="{{ route('user.history.index')}}"
                             class="nav-link {{ request()->routeIs('user.history.index') ? 'active' : '' }}">
                                 <i class="fas fa-history nav-icon"></i>
-                                <p>Coming Soon</p>
+                                <p>Riwayat Penjualan</p>
                             </a>
                         </li>
                     </ul>
